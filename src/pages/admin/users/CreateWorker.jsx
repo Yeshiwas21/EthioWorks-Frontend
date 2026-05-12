@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   fetchUsers as listUsers,
   createWorker,
@@ -181,7 +182,7 @@ function CreateWorker() {
     }
 
     // VERIFIED
-    if (!form.verified) {
+    if (form.verified === "") {
       newErrors.verified = "Please select verification status";
     }
 
@@ -220,7 +221,7 @@ function CreateWorker() {
       }
 
       await createWorker(formData);
-
+      toast.success("New worker created");
       navigate("/admin/workers");
     } catch (err) {
       console.error(err);
@@ -239,6 +240,7 @@ function CreateWorker() {
       }
 
       setErrors(formattedErrors);
+      toast.success("Failed to create a worker");
     } finally {
       setLoading(false);
     }

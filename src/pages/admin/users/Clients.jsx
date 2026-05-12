@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listClient } from "../../../services/userServices";
+import toast from "react-hot-toast";
+import { listClient, deleteClient } from "../../../services/userServices";
 import { StatCard } from "./AllUsers";
 import {
   Users,
@@ -24,7 +25,7 @@ function Clients() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ✅ MODAL STATE
+  //  MODAL STATE
   const [selectedClient, setSelectedClient] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
@@ -80,6 +81,23 @@ function Clients() {
   const closeModal = () => {
     setSelectedClient(null);
     setIsViewModalOpen(false);
+  };
+
+  const handleDeleteClient = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this client?")) return;
+
+    try {
+      await deleteClient(id);
+
+      setClients((prev) => prev.filter((c) => c.id !== id));
+
+      closeModal();
+
+      toast.success("Client deleted");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete a client");
+    }
   };
 
   if (loading) {
@@ -177,11 +195,11 @@ function Clients() {
               <tbody>
                 {filteredClients.map((c) => (
                   <tr
-                    key={c.user_id}
+                    key={c.id}
                     className="border-t hover:bg-gray-50 cursor-pointer"
                     onClick={() => openViewModal(c)}
                   >
-                    <td className="p-3 whitespace-nowrap">#{c.user_id}</td>
+                    <td className="p-3 whitespace-nowrap">#{c.id}</td>
                     <td className="p-3 whitespace-nowrap">
                       {c.company_name || "—"}
                     </td>
@@ -201,7 +219,10 @@ function Clients() {
                         <Edit size={16} />
                       </button>
 
-                      <button className="text-red-500 hover:text-red-700 cursor-pointer">
+                      <button
+                        onClick={() => handleDeleteClient(c.id)}
+                        className="text-red-500 hover:text-red-700 cursor-pointer"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </td>
@@ -227,7 +248,7 @@ function Clients() {
 
             <div className="space-y-3 text-sm">
               <p>
-                <strong>ID:</strong> #{selectedClient.user_id}
+                <strong>ID:</strong> #{selectedClient.id}
               </p>
 
               <p className="flex items-center gap-2">

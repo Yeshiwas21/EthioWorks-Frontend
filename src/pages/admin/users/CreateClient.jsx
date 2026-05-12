@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   fetchUsers as listUsers,
   createClient,
@@ -20,6 +21,7 @@ function CreateClient() {
     company_name: "",
     verified: "",
     location: "",
+    company_logo: null,
   });
 
   /* FETCH USERS */
@@ -100,13 +102,26 @@ function CreateClient() {
     if (companyError) newErrors.company_name = companyError;
 
     // VERIFICATION STATUS
-    if (!form.verified) {
+    if (form.verified === "") {
       newErrors.verified = "Please select a verification status";
     }
 
     // LOCATION
     const locationError = validateTextField(form.location);
     if (locationError) newErrors.location = locationError;
+
+    // COMPANY LOGO
+    if (form.company_logo) {
+      const file = form.company_logo;
+
+      if (!file.type.startsWith("image/")) {
+        newErrors.company_logo = "File must be an image";
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        newErrors.company_logo = "Max size is 2MB";
+      }
+    }
 
     return newErrors;
   };
@@ -140,17 +155,27 @@ function CreateClient() {
     try {
       setLoading(true);
 
-      await createClient({
-        user: selectedUserId,
-        company_name: form.company_name,
-        verified: form.verified,
-        location: form.location,
-      });
+      /* Use FormData: You CANNOT send image with JSON.
+       */
+      const formData = new FormData();
 
+      formData.append("user", selectedUserId);
+      formData.append("company_name", form.company_name);
+      formData.append("location", form.location);
+      formData.append("verified", form.verified);
+
+      if (form.company_logo) {
+        formData.append("company_logo", form.company_logo);
+      }
+
+      await createClient(formData);
+
+      toast.success("New client created");
       navigate("/admin/clients");
     } catch (err) {
       console.error(err);
       setErrors(parseErrors(err?.response?.data));
+      toast.error("Failed to create a client");
     } finally {
       setLoading(false);
     }
@@ -242,6 +267,23 @@ function CreateClient() {
         />
         {errors.location && (
           <p className="text-red-500 text-sm">{errors.location}</p>
+        )}
+
+        {/* COMPANY LOGO */}
+        <input
+          type="file"
+          name="company_logo"
+          accept="image/*"
+          className={inputClass("company_logo")}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              company_logo: e.target.files[0],
+            })
+          }
+        />
+        {errors.company_logo && (
+          <p className="text-red-500 text-sm">{errors.company_logo}</p>
         )}
 
         {/* GENERAL ERROR */}

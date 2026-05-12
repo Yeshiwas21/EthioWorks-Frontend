@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { registerUser } from "../../../services/userServices";
 
 function CreateUser() {
@@ -95,9 +96,11 @@ function CreateUser() {
       setLoading(true);
 
       await registerUser(form);
+      toast.success("New user created");
       navigate("/admin/users");
     } catch (err) {
       setErrors(parseErrors(err?.response?.data));
+      toast.error("Failed to create a user");
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import { signupClient } from "../../services/userServices";
 
 function ClientSignup() {
@@ -107,7 +108,7 @@ function ClientSignup() {
       setLoading(true);
 
       await signupClient(form);
-
+      toast.success("Account created successfully");
       navigate("/login");
     } catch (err) {
       const backendErrors = err.response?.data;
