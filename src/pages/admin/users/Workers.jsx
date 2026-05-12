@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listWorker } from "../../../services/userServices";
+import toast from "react-hot-toast";
+import { listWorker, deleteWorker } from "../../../services/userServices";
 import { StatCard } from "./AllUsers";
 import {
   Users,
@@ -81,6 +82,22 @@ function Workers() {
     setIsViewModalOpen(false);
   };
 
+  const handleDeleteWorker = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this worker?")) return;
+
+    try {
+      await deleteWorker(id);
+
+      setWorkers((prev) => prev.filter((w) => w.id !== id));
+
+      closeModal();
+      toast.success("Worker deleted");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete client");
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-8">
@@ -91,7 +108,14 @@ function Workers() {
       </div>
     );
   }
-
+  // DELETION STATUS
+  {
+    toast && (
+      <div className="fixed top-5 right-5 bg-black text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in-out z-50">
+        {toast}
+      </div>
+    );
+  }
   return (
     <div className="p-8 bg-gray-100 min-h-screen overflow-x-hidden w-full max-w-full">
       <div className="w-full max-w-full flex flex-col gap-6">
@@ -176,11 +200,11 @@ function Workers() {
               <tbody>
                 {filteredWorkers.map((w) => (
                   <tr
-                    key={w.user_id}
+                    key={w.id}
                     className="border-t hover:bg-gray-50 cursor-pointer"
                     onClick={() => openViewModal(w)} // ✅ OPEN MODAL
                   >
-                    <td className="p-3 truncate">#{w.user_id}</td>
+                    <td className="p-3 truncate">#{w.id}</td>
                     <td className="p-3 truncate">
                       {[w.first_name, w.last_name].filter(Boolean).join(" ") ||
                         "—"}
@@ -199,7 +223,10 @@ function Workers() {
                         <Edit size={16} />
                       </button>
 
-                      <button className="text-red-500 hover:text-red-700 cursor-pointer">
+                      <button
+                        onClick={() => handleDeleteWorker(w.id)}
+                        className="text-red-500 hover:text-red-700 cursor-pointer"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </td>
@@ -225,7 +252,7 @@ function Workers() {
 
             <div className="space-y-3 text-sm">
               <p>
-                <strong>ID:</strong> #{selectedWorker.user_id}
+                <strong>ID:</strong> #{selectedWorker.id}
               </p>
 
               <p className="flex items-center gap-2">

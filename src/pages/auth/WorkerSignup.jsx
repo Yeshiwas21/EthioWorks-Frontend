@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import { signupWorker } from "../../services/userServices";
 
 function WorkerSignup() {
@@ -130,6 +131,7 @@ function WorkerSignup() {
     try {
       setLoading(true);
       await signupWorker(form);
+      toast.success("Account created successfully");
       navigate("/login");
     } catch (err) {
       const backendErrors = err.response?.data;

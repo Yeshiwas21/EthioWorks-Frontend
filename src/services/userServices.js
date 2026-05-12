@@ -2,13 +2,15 @@ import {
   clientSignupApi,
   workerSignupApi,
   getUsers,
-  registerUserAPI,
-  updateUserApi,
-  deleteUserApi,
-  listClientApi,
-  listWorkerApi,
+  userRegisterAPI,
+  userUpdateApi,
+  userDeletApi,
+  clientListApi,
+  workerListApi,
   clientCreateApi,
-  workerCreateApi
+  workerCreateApi,
+  clientDeleteApi,
+  workerDeleteApi
 } from "../api/userApi";
 
 /* USERS LIST */
@@ -55,31 +57,31 @@ export const signupWorker = async (form) => {
 
 /* REGISTER USER */
 export const registerUser = async (payload) => {
-  const response = await registerUserAPI(payload);
+  const response = await userRegisterAPI(payload);
   return response.data;
 };
 
 /* DELETE USER */
 export const deleteUser = async (id) => {
-  const response = await deleteUserApi(id);
+  const response = await userDeletApi(id);
   return response.data;
 };
 
 /* UPDATE USER */
 export const updateUser = async (id, data) => {
-  const response = await updateUserApi(id, data);
+  const response = await userUpdateApi(id, data);
   return response.data;
 };
 
 /* LIST WORKER */
 export const listWorker = async () => {
-  const response = await listWorkerApi();
+  const response = await workerListApi();
   return response.data;
 };
 
 /* LIST CLIENT */
 export const listClient = async () => {
-  const response = await listClientApi();
+  const response = await clientListApi();
   return response.data;
 };
 
@@ -94,3 +96,15 @@ export const createWorker = async (data) => {
   const response = await workerCreateApi(data);
   return response.data;
 };
+
+/* DELETE CLIENT */
+export const deleteClient = async (id) => {
+  const response = await clientDeleteApi(id);
+  return response.data
+}
+
+/* DELETE WORKER */
+export const deleteWorker = async(id) => {
+  const response = await workerDeleteApi(id)
+  return response.data
+}

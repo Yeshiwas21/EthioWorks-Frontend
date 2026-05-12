@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   fetchUsers,
   deleteUser,
@@ -113,11 +114,12 @@ function AllUsers() {
       // close modal
       closeModal();
 
-      // ✅ redirect to All Users page
+      // redirect to All Users page
+      toast.success("User deleted");
       navigate("/admin/users");
     } catch (err) {
       console.error(err);
-      alert("Failed to delete user");
+      toast.error("Failed to delete a user");
     }
   };
   const handleEditChange = (e) => {
@@ -139,9 +141,10 @@ function AllUsers() {
 
       setIsEditModalOpen(false);
       setIsViewModalOpen(false);
+      toast.success("User updated");
     } catch (err) {
       console.error(err);
-      alert("Failed to update user");
+      toast.error("Failed to update user");
     }
   };
   const stats = useMemo(() => {

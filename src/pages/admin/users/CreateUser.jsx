@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { registerUser } from "../../../services/userServices";
 
 function CreateUser() {
@@ -11,6 +12,7 @@ function CreateUser() {
     password: "",
     password_2: "",
     user_type: "",
+    is_active: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -55,6 +57,10 @@ function CreateUser() {
       newErrors.user_type = "Select user type";
     }
 
+    if (!form.is_active) {
+      newErrors.is_active = "Select a status";
+    }
+
     return newErrors;
   };
 
@@ -90,9 +96,11 @@ function CreateUser() {
       setLoading(true);
 
       await registerUser(form);
+      toast.success("New user created");
       navigate("/admin/users");
     } catch (err) {
       setErrors(parseErrors(err?.response?.data));
+      toast.error("Failed to create a user");
     } finally {
       setLoading(false);
     }
@@ -177,6 +185,21 @@ function CreateUser() {
         />
         {errors.password_2 && (
           <p className="text-red-500 text-sm">{errors.password_2}</p>
+        )}
+
+        {/* STATUS */}
+        <select
+          name="is_active"
+          value={form.is_active}
+          onChange={handleChange}
+          className={inputClass("is_active")}
+        >
+          <option value="">Select A Status</option>
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+        {errors.is_active && (
+          <p className="text-red-500 text-sm">{errors.is_active}</p>
         )}
 
         {/* GENERAL ERROR */}

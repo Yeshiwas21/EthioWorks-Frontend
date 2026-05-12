@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 /* Layout */
 import Navbar from "./components/Navbar";
@@ -71,6 +72,7 @@ export default function App() {
 
         {/* MAIN CONTENT */}
         <main className="flex-1 bg-gray-100 p-4 overflow-x-hidden">
+          <Toaster position="top-right" />
           <Routes>
             {/* PUBLIC */}
             <Route path="/" element={<HomePage />} />

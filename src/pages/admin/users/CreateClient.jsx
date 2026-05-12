@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   fetchUsers as listUsers,
   createClient,
@@ -15,10 +16,12 @@ function CreateClient() {
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
-    company_name: "",
-    phone: "",
-    location: "",
     email: "",
+    phone: "",
+    company_name: "",
+    verified: "",
+    location: "",
+    company_logo: null,
   });
 
   /* FETCH USERS */
@@ -39,13 +42,6 @@ function CreateClient() {
     fetchUsers();
   }, []);
 
-  /* CAPITALIZE */
-  const capitalizeWords = (value) => {
-    return value
-      .toLowerCase()
-      .replace(/(^|\s|[-'])\w/g, (char) => char.toUpperCase());
-  };
-
   /* USER SELECT */
   const handleUserChange = (e) => {
     const userId = e.target.value;
@@ -64,28 +60,16 @@ function CreateClient() {
 
   /* INPUT CHANGE */
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: name === "verified" ? value === "true" : value,
     });
 
     setErrors({
       ...errors,
       [e.target.name]: "",
-    });
-  };
-
-  const handleCompanyChange = (e) => {
-    const value = capitalizeWords(e.target.value);
-
-    setForm((prev) => ({
-      ...prev,
-      company_name: value,
-    }));
-
-    setErrors({
-      ...errors,
-      company_name: "",
     });
   };
 
@@ -117,9 +101,27 @@ function CreateClient() {
     const companyError = validateTextField(form.company_name);
     if (companyError) newErrors.company_name = companyError;
 
+    // VERIFICATION STATUS
+    if (form.verified === "") {
+      newErrors.verified = "Please select a verification status";
+    }
+
     // LOCATION
     const locationError = validateTextField(form.location);
     if (locationError) newErrors.location = locationError;
+
+    // COMPANY LOGO
+    if (form.company_logo) {
+      const file = form.company_logo;
+
+      if (!file.type.startsWith("image/")) {
+        newErrors.company_logo = "File must be an image";
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        newErrors.company_logo = "Max size is 2MB";
+      }
+    }
 
     return newErrors;
   };
@@ -153,16 +155,27 @@ function CreateClient() {
     try {
       setLoading(true);
 
-      await createClient({
-        user: selectedUserId,
-        company_name: form.company_name,
-        location: form.location,
-      });
+      /* Use FormData: You CANNOT send image with JSON.
+       */
+      const formData = new FormData();
 
+      formData.append("user", selectedUserId);
+      formData.append("company_name", form.company_name);
+      formData.append("location", form.location);
+      formData.append("verified", form.verified);
+
+      if (form.company_logo) {
+        formData.append("company_logo", form.company_logo);
+      }
+
+      await createClient(formData);
+
+      toast.success("New client created");
       navigate("/admin/clients");
     } catch (err) {
       console.error(err);
       setErrors(parseErrors(err?.response?.data));
+      toast.error("Failed to create a client");
     } finally {
       setLoading(false);
     }
@@ -221,11 +234,26 @@ function CreateClient() {
           placeholder="Company Name"
           autoComplete="off"
           value={form.company_name}
-          onChange={handleCompanyChange}
+          onChange={handleChange}
           className={inputClass("company_name")}
         />
         {errors.company_name && (
           <p className="text-red-500 text-sm">{errors.company_name}</p>
+        )}
+
+        {/* VERIFICATION */}
+        <select
+          name="verified"
+          value={form.verified}
+          onChange={handleChange}
+          className={inputClass("verified")}
+        >
+          <option value="">Select Status</option>
+          <option value="true">Verified</option>
+          <option value="false">Not Verified</option>
+        </select>
+        {errors.verified && (
+          <p className="text-red-500 text-sm">{errors.verified}</p>
         )}
 
         {/* LOCATION */}
@@ -239,6 +267,23 @@ function CreateClient() {
         />
         {errors.location && (
           <p className="text-red-500 text-sm">{errors.location}</p>
+        )}
+
+        {/* COMPANY LOGO */}
+        <input
+          type="file"
+          name="company_logo"
+          accept="image/*"
+          className={inputClass("company_logo")}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              company_logo: e.target.files[0],
+            })
+          }
+        />
+        {errors.company_logo && (
+          <p className="text-red-500 text-sm">{errors.company_logo}</p>
         )}
 
         {/* GENERAL ERROR */}

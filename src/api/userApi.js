@@ -26,49 +26,68 @@ export const getUsers = () => {
 
 
 /* REGISTER USER */
-export const registerUserAPI = (payload) => {
-  return api.post(`/users/register/`, payload);
+export const userRegisterAPI = (data) => {
+  return api.post(`/users/register/`, data);
 }
 
 /* DELETE USER */
-export const deleteUserApi = (id) => {
+export const userDeletApi = (id) => {
   return api.delete(`/users/${id}/delete/`);
 };
 
 /* UPDATE USER */
-export const updateUserApi = (id, data) => {
+export const userUpdateApi = (id, data) => {
   return api.put(`/users/${id}/update/`, data);
 };
 
 
 
 /* CLIENT  SIGNUP */
-export const clientSignupApi = (payload) => {
-  return api.post("/users/signup/client/", payload);
+export const clientSignupApi = (data) => {
+  return api.post("/users/signup/client/", data);
 };
 
 /* WORKER SIGNUP */
-export const workerSignupApi = (payload) => {
-  return api.post("/users/signup/worker/", payload);
+export const workerSignupApi = (data) => {
+  return api.post("/users/signup/worker/", data);
 };
 
 
 /* LIST WORKERS */
-export const listWorkerApi = () => {
+export const workerListApi = () => {
   return api.get("/users/workers/");
 };
 
 /* LIST CLIENTS */
-export const listClientApi = () => {
+export const clientListApi = () => {
   return api.get("/users/clients/");
 };
 
 /* WORKER CREATE */
-export const workerCreateApi = (payload) => {
-  return api.post("/users/create/worker/", payload);
+export const workerCreateApi = (data) => {
+  return api.post("/users/create/worker/", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
 
 /* CLIENT CREATE */
-export const clientCreateApi = (payload) => {
-  return api.post("/users/create/client/", payload);
+export const clientCreateApi = (data) => {
+  return api.post("/users/create/client/", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+
+/* DELETE CLIENT */
+export const clientDeleteApi = (id) => {
+  return api.delete(`/users/client/${id}/delete/`);
+};
+
+/* DELETE WORKER */
+export const workerDeleteApi = (id) => {
+  return api.delete(`/users/worker/${id}/delete/`);
 };
